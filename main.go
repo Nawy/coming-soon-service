@@ -9,7 +9,9 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +20,7 @@ var (
 	emailFilePath string
 	// The secret token for the protected endpoint - loaded from environment variable
 	secretToken string
+	host        string
 )
 
 var (
@@ -40,6 +43,11 @@ func main() {
 		log.Fatal("ERROR: SECRET_TOKEN environment variable is not set")
 	}
 
+	host = os.Getenv("HOST")
+	if host == "" {
+		log.Fatal("ERROR: SECRET_TOKEN environment variable is not set")
+	}
+
 	// Set email file path from environment variable, default to "emails.txt"
 	emailFilePath = os.Getenv("EMAIL_FILE_PATH")
 	if emailFilePath == "" {
@@ -55,6 +63,7 @@ func main() {
 
 	// 2. Set up the Gin router.
 	router := gin.Default()
+	setupCors(router, host)
 
 	// 3. Define endpoints.
 	// POST /coming-soon (public)
@@ -210,4 +219,26 @@ func saveEmailsToFile() error {
 
 	// Flush the buffer to ensure all data is written to disk.
 	return writer.Flush()
+}
+
+func setupCors(r *gin.Engine, host string) {
+	r.Use(cors.New(cors.Config{
+		// 🚨 Allow your frontend origin
+		AllowOrigins: []string{host},
+
+		// Specify which methods are allowed
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+
+		// Specify which headers are allowed
+		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
+
+		// If you want to expose some headers to the browser
+		ExposeHeaders: []string{"Content-Length"},
+
+		// Enable this if your frontend needs to send cookies
+		AllowCredentials: true,
+
+		// How long the result of a preflight request can be cached
+		MaxAge: 12 * time.Hour,
+	}))
 }

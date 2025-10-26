@@ -41,6 +41,7 @@ EXPOSE 8080
 
 # Set environment variable placeholder (must be overridden at runtime)
 ENV SECRET_TOKEN=""
+ENV HOST=""
 
 # Volume for emails.txt file (mounted from host)
 VOLUME ["/app/data"]

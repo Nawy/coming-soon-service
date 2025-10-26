@@ -14,6 +14,7 @@ services:
       # IMPORTANT: Replace with a strong, random token in production
       - SECRET_TOKEN=${SECRET_TOKEN:-change-this-to-a-secure-token}
       - EMAIL_FILE_PATH=/app/data/emails.txt
+      - HOST=${HOST:-http://localhost:8080}
     volumes:
       # Mount a local directory to persist emails outside the container
       # Change './data' to your preferred host directory path
