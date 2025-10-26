@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  coming-soon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: coming-soon-service:latest
+    container_name: coming-soon-service
+    ports:
+      - "8080:8080"
+    environment:
+      # Set your secret token here or use an .env file
+      # IMPORTANT: Replace with a strong, random token in production
+      - SECRET_TOKEN=${SECRET_TOKEN:-change-this-to-a-secure-token}
+      - EMAIL_FILE_PATH=/app/data/emails.txt
+    volumes:
+      # Mount a local directory to persist emails outside the container
+      # Change './data' to your preferred host directory path
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/coming-soon",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - coming-soon-network
+
+networks:
+  coming-soon-network:
+    driver: bridge
